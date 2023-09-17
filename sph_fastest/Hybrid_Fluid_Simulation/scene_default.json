@@ -1,0 +1,18 @@
+{
+	"fluid_block" : [
+		{
+			"begin_x" : 0.091, 
+			"begin_y" : 0.091,
+			"begin_z" : 0.091,
+			"end_x" : 0.8,
+			"end_y" : 0.8, 
+			"end_z" : 0.8
+		}
+	], 
+	"mass" : 0.00027,
+	"interval" : 0.15,
+	"recomm_nump" : 15500000,
+	"xx": 1.6,
+	"yy": 1.6,
+	"zz": 1.6
+}
