@@ -13,7 +13,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
-#include <GL/freeglut.h>
+//#include <GL/freeglut.h>
 #include "json/json.h"
 #include "json/reader.h"
 #include "cuda_math.cuh"
@@ -157,31 +157,31 @@ inline void defaultInitializeSPHSysPara(SystemParameter &sys_para, Scene *scene)
 
 
 
-void setOrthographicProjection(GLdouble w, GLdouble h)
-{
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glLoadIdentity();
-    gluOrtho2D(0, w, h, 0);
-    glMatrixMode(GL_MODELVIEW);
-}
+//void setOrthographicProjection(GLdouble w, GLdouble h)
+//{
+//    glMatrixMode(GL_PROJECTION);
+//    glPushMatrix();
+//    glLoadIdentity();
+//    gluOrtho2D(0, w, h, 0);
+//    glMatrixMode(GL_MODELVIEW);
+//}
 
-void restorePerspectiveProjection()
-{
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
-    glMatrixMode(GL_MODELVIEW);
-}
+//void restorePerspectiveProjection()
+//{
+//    glMatrixMode(GL_PROJECTION);
+//    glPopMatrix();
+//    glMatrixMode(GL_MODELVIEW);
+//}
 
-void renderBitmapString(float x, float y, float z, void *font, const std::stringstream &ss)
-{
-    std::string str = ss.str();
-    const char *c;
-    glRasterPos3f(x, y, z);
-    for (c = str.c_str(); *c != '\0'; c++) {
-        glutBitmapCharacter(font, *c);
-    }
-}
+//void renderBitmapString(float x, float y, float z, void *font, const std::stringstream &ss)
+//{
+//    std::string str = ss.str();
+//    const char *c;
+//    glRasterPos3f(x, y, z);
+//    for (c = str.c_str(); *c != '\0'; c++) {
+//        glutBitmapCharacter(font, *c);
+//    }
+//}
 
 /****************************** HybridSystem ******************************/
 
@@ -199,9 +199,9 @@ HybridSystem::HybridSystem(const float3 &real_world_side, const float3 &sim_orig
     initializeKernel();
 
     // render 
-    particle_texture_.loadPNG("ball32.png");
+    /*particle_texture_.loadPNG("ball32.png");
     glGenBuffers(1, &position_vbo_);
-    glGenBuffers(1, &color_vbo_);
+    glGenBuffers(1, &color_vbo_);*/
 
     get_detailed_time_ = true;
     generate_mesh_ = false;
@@ -219,7 +219,7 @@ float time = 0;
 void HybridSystem::tick()
 {
     if (!is_running_) return;
-	tt++;
+    tt++;
     HighResolutionTimerForWin timer;
     timer.set_start();
     static int step = 0;
@@ -233,41 +233,41 @@ void HybridSystem::tick()
         CUDA_SAFE_CALL(cudaEventCreate(&end3));
     }
     static float tot_pres = 0.0f, tot_forc = 0.0f, tot_tot = 0.0f;
-    int *d_index = arrangement_->getDevCellIndex();
-    int *offset_data = arrangement_->getDevOffsetData();
-    int *cell_offset = arrangement_->getDevCellOffset();
+    int* d_index = arrangement_->getDevCellIndex();
+    int* offset_data = arrangement_->getDevOffsetData();
+    int* cell_offset = arrangement_->getDevCellOffset();
 
-	int *cell_offsetM = arrangement_->getDevCellOffsetM();
+    int* cell_offsetM = arrangement_->getDevCellOffsetM();
 
-    int *cell_nump = arrangement_->getDevCellNumP();
+    int* cell_nump = arrangement_->getDevCellNumP();
     if (get_detailed_time_) CUDA_SAFE_CALL(cudaEventRecord(start));
     int middle = nump_;
     //arrangement_->sortParticles();
 
     middle = arrangement_->arrangeHybridMode9M();
-//    arrangement_->CountingSortCUDA();
-//    arrangement_->assignTasksFixedCTA();
+    //    arrangement_->CountingSortCUDA();
+    //    arrangement_->assignTasksFixedCTA();
 
 
     ParticleIdxRange tra_range(0, middle);      // [0, middle)
 
-//      std::cout << "middle value: ******************************************" << middle << std::endl;
+    //      std::cout << "middle value: ******************************************" << middle << std::endl;
     if (get_detailed_time_) CUDA_SAFE_CALL(cudaEventRecord(end0));
 
-	computeDensityHybrid128n(cell_offsetM, tra_range, device_buff_.get_buff_list(), d_index, cell_offset, cell_nump, arrangement_->getBlockTasks(), arrangement_->getNumBlockSMSMode());
-//    computeDensitySMS64(device_buff_.get_buff_list(), cell_offset, cell_nump, arrangement_->getBlockTasks(), arrangement_->getNumBlockSMSMode());
-//    computeDensityTRA(device_buff_.get_buff_list(), ParticleIdxRange(0, nump_), cell_offset, cell_nump);
-    //   std::cout << step << std::endl;
+    computeDensityHybrid128n(cell_offsetM, tra_range, device_buff_.get_buff_list(), d_index, cell_offset, cell_nump, arrangement_->getBlockTasks(), arrangement_->getNumBlockSMSMode());
+    //    computeDensitySMS64(device_buff_.get_buff_list(), cell_offset, cell_nump, arrangement_->getBlockTasks(), arrangement_->getNumBlockSMSMode());
+    //    computeDensityTRA(device_buff_.get_buff_list(), ParticleIdxRange(0, nump_), cell_offset, cell_nump);
+        //   std::cout << step << std::endl;
     if (get_detailed_time_) CUDA_SAFE_CALL(cudaEventRecord(end1));
 
-	computeForceHybrid128n(cell_offsetM, tra_range, device_buff_.get_buff_list(), d_index, cell_offset, cell_nump, arrangement_->getBlockTasks(), arrangement_->getNumBlockSMSMode());
-//    computeForceSMS64(device_buff_.get_buff_list(), cell_offset, cell_nump, arrangement_->getBlockTasks(), arrangement_->getNumBlockSMSMode());
-//    computeForceTRA(device_buff_.get_buff_list(), ParticleIdxRange(0, nump_), cell_offset, cell_nump);
+    computeForceHybrid128n(cell_offsetM, tra_range, device_buff_.get_buff_list(), d_index, cell_offset, cell_nump, arrangement_->getBlockTasks(), arrangement_->getNumBlockSMSMode());
+    //    computeForceSMS64(device_buff_.get_buff_list(), cell_offset, cell_nump, arrangement_->getBlockTasks(), arrangement_->getNumBlockSMSMode());
+    //    computeForceTRA(device_buff_.get_buff_list(), ParticleIdxRange(0, nump_), cell_offset, cell_nump);
     if (get_detailed_time_) CUDA_SAFE_CALL(cudaEventRecord(end2));
 
     advance(device_buff_.get_buff_list(), nump_);
-	//advanceWave(device_buff_.get_buff_list(), nump_,time);
-	time += 0.003;
+    //advanceWave(device_buff_.get_buff_list(), nump_,time);
+    time += 0.003;
     if (get_detailed_time_) CUDA_SAFE_CALL(cudaEventRecord(end3));
 
     //sf 将数据复制回host
@@ -297,11 +297,12 @@ void HybridSystem::tick()
         CUDA_SAFE_CALL(cudaEventDestroy(end2));
         CUDA_SAFE_CALL(cudaEventDestroy(end3));
     }
+    printf("preprocess time cost:    %f\n", pre_time_);
+    printf("sph update time cost:    %f\n", force_time_ + density_time_);
+    printf("current step time cost:      %f\n", total_time_);
+    printf("\n\n\n");
     ++step;
     loop = step;
-    if (loop > 640) {
-  //      exit(0);
-    }
 }
 
 //sf 初始化场景
@@ -451,139 +452,6 @@ void HybridSystem::insertParticles(unsigned int type)
     }
 }
 
-void HybridSystem::drawParticles(float rad, int size)
-{
-    glEnable(GL_BLEND);
-    glEnable(GL_ALPHA_TEST);
-    glAlphaFunc(GL_GREATER, 0.5);
-    glDepthMask(GL_TRUE);
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_COLOR_MATERIAL);
-    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-    glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT0);
-
-    glEnable(GL_POINT_SPRITE_ARB);
-    float quadratic[] = { 1.0f, 0.01f, 0.001f };
-    glEnable(GL_POINT_DISTANCE_ATTENUATION);
-    glPointParameterfvARB(GL_POINT_DISTANCE_ATTENUATION, quadratic);
-    glPointSize(size);
-    glPointParameterfARB(GL_POINT_SIZE_MAX, 32);
-    glPointParameterfARB(GL_POINT_SIZE_MIN, 1.0f);
-
-    // Texture and blending mode
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, particle_texture_.get_texture());
-    glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    // Point buffers
-	//GLint gsize = size;
-    glBindBuffer(GL_ARRAY_BUFFER, position_vbo_);
-    glBufferData(GL_ARRAY_BUFFER, nump_*sizeof(float3), host_buff_.get_buff_list().final_position, GL_DYNAMIC_DRAW);
-	glVertexPointer(3, GL_FLOAT, 0, 0x0);
-    glBindBuffer(GL_ARRAY_BUFFER, color_vbo_);
-    glBufferData(GL_ARRAY_BUFFER, nump_ * sizeof(uint), host_buff_.get_buff_list().color, GL_DYNAMIC_DRAW);
-    glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0x0);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-
-    //for (size_t i = 1000; i < 1020; ++i)
-    //{
-    //    printf("color: %u\n", host_buff_.color[i]);
-    //}
-
-    // Render - Point Sprites
-    glNormal3f(0, 1, 0.001);
-    glColor4f(1, 1, 1, 1);
-    glDrawArrays(GL_POINTS, 0, nump_);
-
-    // Restore state
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
-    glDisable(GL_POINT_SPRITE_ARB);
-    glDisable(GL_ALPHA_TEST);
-    glDisable(GL_TEXTURE_2D);
-    glDepthMask(GL_TRUE);
-}
-int cftn = 0;
-float pre = 0;
-float tot = 0;
-float fore = 0;
-std::ofstream outtt("combine666666666666666666666666666666666.txt");
-void HybridSystem::drawInfo(GLdouble w, GLdouble h)
-{
-    float x = 20, y = 20, delta_y = 20;
-    std::stringstream ss;
-    static unsigned int frame = 0;
-    static float time = 0.0f, acc_time = 0.0f;
-
-    setOrthographicProjection(w, h);
-	//tt++;
-    glPushMatrix();
-    glLoadIdentity();
-    glColor3f(1.0f, 1.0f, 1.0f);
-    glDisable(GL_LIGHTING);
-
-    // output particles
-    frame_timer_.set_end();
-    acc_time += frame_timer_.get_millisecond();
-    frame_timer_.set_start();
-    ++frame;
-    if (acc_time > 100.0f) {
-        time = 1000 * frame / acc_time; frame = 0; acc_time = 0.0f;
-    }
-    float xixi = float(1000.0f / total_time_);
-
-	if (tt > 10&&tt<631){
-        cftn++;
-        pre += pre_time_;
-        fore += (density_time_ + force_time_);
-		//outtt << xixi << std::endl;
-        if (tt == 630) {
-            float outv1 = pre / cftn;
-            float outv2 = fore / cftn;
-            outtt << outv1 << "   " << outv2 << "   " << outv1 + outv2 << std::endl;
-        }
-	}
-//	std::cout << tt << std::endl;
-    ss << "FPS: " << xixi;//time;
-
-
-    frame_timer_.set_start();
-    renderBitmapString(x, y, 0, GLUT_BITMAP_HELVETICA_12, ss);
-    ss.str(""); y += delta_y;
-
-    // output number of particles
-    ss << "#particles: " << nump_;
-    renderBitmapString(x, y, 0, GLUT_BITMAP_HELVETICA_12, ss);
-    ss.str(""); y += delta_y;
-
-    // output detailed time
-    if (get_detailed_time_)
-    {
-		ss << "Simulation detailed time: ";
-		renderBitmapString(x, y, 0, GLUT_BITMAP_HELVETICA_12, ss);
-		ss.str(""); y += delta_y;
-		ss << "    preprocessing: " << pre_time_ << "ms";
-		renderBitmapString(x, y, 0, GLUT_BITMAP_HELVETICA_12, ss);
-		ss.str(""); y += delta_y;
-		ss << "    density computation: " << density_time_ << "ms";
-		renderBitmapString(x, y, 0, GLUT_BITMAP_HELVETICA_12, ss);
-		ss.str(""); y += delta_y;
-		ss << "    force computation: " << force_time_ << "ms";
-		renderBitmapString(x, y, 0, GLUT_BITMAP_HELVETICA_12, ss);
-		ss.str(""); y += delta_y;
-		ss << "    total consumption: " << total_time_ << "ms";
-		renderBitmapString(x, y, 0, GLUT_BITMAP_HELVETICA_12, ss);
-		ss.str(""); y += delta_y;
-    }
-
-    glPopMatrix();
-
-    restorePerspectiveProjection();
-}
 
 void HybridSystem::resetBuffer(uint nump)
 {
@@ -620,10 +488,7 @@ void HybridSystem::addParticle(float3 position, float3 velocity, int colortype)
 
     host_buff_.get_buff_list().position_d[nump_] = pos_d;
     host_buff_.get_buff_list().velocity[nump_] = velocity;
-//    host_buff_.get_buff_list().acceleration[nump_] = make_float3(0.0f, 0.0f, 0.0f);
-//    host_buff_.get_buff_list().evaluated_velocity[nump_] = make_float3(0.0f, 0.0f, 0.0f);
-//    host_buff_.get_buff_list().density[nump_] = 0.0f;
-//    host_buff_.get_buff_list().pressure[nump_] = 0.0f;
+
     host_buff_.get_buff_list().final_position[nump_] = position * sys_para_.sim_ratio + sys_para_.sim_origin;
 
     float3 color = make_float3(0.6f, 0.6f, 0.6f);

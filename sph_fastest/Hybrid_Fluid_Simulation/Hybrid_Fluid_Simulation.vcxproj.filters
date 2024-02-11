@@ -102,8 +102,6 @@
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="parameters.h" />
-    <ClInclude Include="main.h" />
-    <ClInclude Include="nv_gui.h" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="sph_arrangement.cu">

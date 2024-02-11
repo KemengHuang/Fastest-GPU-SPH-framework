@@ -9,12 +9,8 @@
 #ifndef _PARTICLE_H
 #define _PARTICLE_H
 
-#include <windows.h>
-#include <GL/glew.h>
-#include <cuda_gl_interop.h>
-#include "cuda_call_check.h"
-//#include "sph_hybrid_system.h"
 
+#include "cuda_call_check.h"
 typedef unsigned int uint;
 
 namespace sph

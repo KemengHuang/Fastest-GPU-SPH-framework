@@ -14,8 +14,7 @@
 #include <utility>
 #include <vector>
 #include <cuda_runtime.h>
-#include <GL/glew.h>
-#include "gl_texture.h"
+//#include "gl_texture.h"
 #include "high_resolution_timer.h"
 #include "sph_arrangement.cuh"
 #include "sph_parameter.h"
@@ -51,8 +50,8 @@ public:
 
 	void insertParticles(unsigned int type);
 
-    void drawParticles(float rad, int size);
-    void drawInfo(GLdouble w, GLdouble h);
+    //void drawParticles(float rad, int size);
+    //void drawInfo(GLdouble w, GLdouble h);
 	int loop;
 
 private:
@@ -61,7 +60,7 @@ private:
     void resetBuffer(uint nump);
 	void addParticle2(float3 position, float3 velocity, condition phase, float temperature);
     void addParticle(float3 position, float3 velocity = make_float3(0.0f, 0.0f, 0.0f), int color_type = 1);
-    bool is_running_ = false;
+    bool is_running_ = true;
     uint nump_ = 0U;
     uint buff_capacity_ = 0U;
     ParticleBufferObject host_buff_;
@@ -82,9 +81,9 @@ private:
 	bool add_smoke_;
 
     // render
-    PNGTexture particle_texture_;
-    GLuint position_vbo_;
-    GLuint color_vbo_;
+    //PNGTexture particle_texture_;
+    //GLuint position_vbo_;
+    //GLuint color_vbo_;
 
 	// action
 	void action1();
